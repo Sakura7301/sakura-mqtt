@@ -1,0 +1,75 @@
+{
+    "archive": {
+        "doc": {
+            "dev_manual": [
+                "archive/doc/SAKURA-MQTT-SDK-Development-Guide.pdf",
+                "archive/doc/release-notes.pdf"
+            ],
+            "memory": [
+                "archive/doc/SAKURA-MQTT-SDK-Memory-Development-Guide.pdf"
+            ],
+            "socket": [
+                "archive/doc/SAKURA-MQTT-SDK Socket-Development-Guide.pdf"
+            ]
+        },
+        "include": {
+            "client": [
+                {
+                    "out" : "archive/include/sakura_mqtt_client.h",
+                    "desc" : "header for client APIs",
+                    "override" : true,
+                    "in" : [
+                        {
+                            "file" : "inc/sakura_mqtt_client.h",
+                            "begin" : "HEADER-BASIC-CLIENT-COPY-BEGIN",
+                            "end" : "HEADER-BASIC-CLIENT-COPY-END"
+                        }
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "out" : "archive/include/sakura_types.h",
+                    "desc" : "header for type definition",
+                    "override" : true,
+                    "in" : [
+                        {
+                            "file" : "inc/sakura_types.h",
+                            "begin" : "HEADER-BASIC-TYPES-COPY-BEGIN",
+                            "end" : "HEADER-BASIC-TYPES-COPY-END",
+                            "only_copy": true
+                        }
+                    ]
+                }
+            ],
+            "user_impl": [
+                {
+                    "out" : "archive/include/sakura_user_impl.h",
+                    "desc" : "header of APIs which user need implement",
+                    "override" : true,
+                    "in" : [
+                        {
+                            "file" : "inc/sakura_socket.h",
+                            "begin" : "HEADER-BODY-COPY-BEGIN",
+                            "end" : "HEADER-BODY-COPY-END",
+                            "without": ["CONFIG_IMPL_ASYNC_SOCKET"]
+                        },
+                        {
+                            "file" : "inc/sakura_mem.h",
+                            "begin" : "HEADER-BODY-COPY-BEGIN",
+                            "end" : "HEADER-BODY-COPY-END",
+                            "without": [
+                                "CONFIG_IMPL_STATIC_MEMORY"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "demo": {
+            "client": [
+                "archive/demo/demo_mqtt.c"
+            ]
+        }
+    }
+}

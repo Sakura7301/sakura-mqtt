@@ -1,0 +1,78 @@
+{
+    "linux": [
+        {
+            "customer": "common",
+            "enable": true,
+            "platform": "x86-64-linux-dmem",
+            ".config": "default_unix.config",
+            "archive": {
+                "doc": [
+                    "dev_manual"
+                ],
+                "include": [
+                    "client",
+                    "types"
+                ],
+                "demo": [
+                    "client"
+                ]
+            }
+        },
+        {
+            "customer": "common",
+            "enable": true,
+            "platform": "x86-64-linux-smem",
+            ".config": "default_unix_smem.config",
+            "archive": {
+                "doc": [
+                    "dev_manual"
+                ],
+                "include": [
+                    "client",
+                    "types"
+                ],
+                "demo": [
+                    "client"
+                ]
+            }
+        },
+        {
+            "customer": "gcc-linaro-5.3",
+            "enable": true,
+            "platform": "arm-linux-dmem",
+            ".config": "default_unix.config",
+            "cross_compile": "/home/alex/Desktop/toochain/gcc-linaro-5.3.1-2016.05-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-",
+            "archive": {
+                "doc": [
+                    "dev_manual"
+                ],
+                "include": [
+                    "client",
+                    "types"
+                ],
+                "demo": [
+                    "client"
+                ]
+            }
+        },
+        {
+            "customer": "gcc-linaro-5.3",
+            "enable": true,
+            "platform": "arm-linux-smem",
+            ".config": "default_unix_smem.config",
+            "cross_compile": "/home/alex/Desktop/toochain/gcc-linaro-5.3.1-2016.05-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-",
+            "archive": {
+                "doc": [
+                    "dev_manual"
+                ],
+                "include": [
+                    "client",
+                    "types"
+                ],
+                "demo": [
+                    "client"
+                ]
+            }
+        }
+    ]
+}

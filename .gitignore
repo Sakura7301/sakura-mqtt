@@ -1,0 +1,10 @@
+demo
+archive/include
+dist/
+.config
+release/
+test/ut/dist
+test/it/dist
+inc/sakura_autoconfig.h
+tools/mock_config
+*.html

@@ -1,5 +1,7 @@
 # Project of SAKURA-MQTT-SDK
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6d6e3183b4e4575b86588b59acc0b61)](https://app.codacy.com/gh/Sakura7301/sakura-mqtt?utm_source=github.com&utm_medium=referral&utm_content=Sakura7301/sakura-mqtt&utm_campaign=Badge_Grade)
+
 This is a lightweight MQTT client that supports high concurrency.
 
 ## Helper

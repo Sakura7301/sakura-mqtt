@@ -8,3 +8,4 @@ test/it/dist
 inc/sakura_autoconfig.h
 tools/mock_config
 *.html
+.vscode

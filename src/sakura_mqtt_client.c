@@ -524,7 +524,7 @@ sakura_int32_t sakura_mqtt_close(sakura_int32_t index)
             break;
         }
 
-        MQTT_NEXT_STATE(client, MQTT_CLIENT_FREE);
+        mqtt_next_state(client, MQTT_CLIENT_FREE);
 
         CLIENT_LOGD("close MQTT index[%d] from client[%s]\n", index, global_mqtt_handle.mqtt_clients[index].client_id);
         /* in case of direct close by caller */
@@ -593,7 +593,7 @@ static sakura_int32_t sakura_mqtt_close_internal(sakura_int32_t index)
             break;
         }
 
-        MQTT_NEXT_STATE(client, MQTT_CLIENT_FREE);
+        mqtt_next_state(client, MQTT_CLIENT_FREE);
 
         CLIENT_LOGD("close MQTT index[%d] from client[%s]\n", index, global_mqtt_handle.mqtt_clients[index].client_id);
         /* in case of direct close by caller */
@@ -1341,7 +1341,7 @@ sakura_int32_t mqtt_connect_wrapper(mqtt_client_t *client)
             break;
         }else {
             client->last_keepalive_tick = client->tick;
-            MQTT_NEXT_STATE(client, MQTT_CLIENT_TCP_CONNECTING);
+            mqtt_next_state(client, MQTT_CLIENT_TCP_CONNECTING);
         }
     } while (SAKURA_FALSE);
 
@@ -1682,7 +1682,7 @@ static sakura_int32_t mqtt_disconnect_wrapper(mqtt_client_t *client)
             }
         }
 
-        MQTT_NEXT_STATE(client, MQTT_CLIENT_DISCONNECTING);
+        mqtt_next_state(client, MQTT_CLIENT_DISCONNECTING);
     } while (SAKURA_FALSE);
     return ret;
 }
@@ -1869,7 +1869,7 @@ static sakura_void_t mqtt_tick_on_error(sakura_int32_t index)
             }
             
             if(client->state != MQTT_CLIENT_CONNECT_ERROR){
-                MQTT_NEXT_STATE(client, MQTT_CLIENT_CONNECT_ERROR);
+                mqtt_next_state(client, MQTT_CLIENT_CONNECT_ERROR);
             }
 
             /* delay 3s, reconnect */

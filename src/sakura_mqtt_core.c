@@ -825,7 +825,7 @@ sakura_void_t mqtt_client_reset(mqtt_client_t *client)
         /* reset ping_outstanding */
         client->ping_outstanding = 0;
 
-        MQTT_NEXT_STATE(client, MQTT_CLIENT_NOT_CONNECTED);
+        mqtt_next_state(client, MQTT_CLIENT_NOT_CONNECTED);
         
     } while (SAKURA_FALSE);
 }
@@ -880,7 +880,7 @@ static sakura_int32_t mqtt_handle_tcp_connected(mqtt_client_t *client)
             break;
         }
 
-        MQTT_NEXT_STATE(client, MQTT_CLIENT_CONNECTING);
+        mqtt_next_state(client, MQTT_CLIENT_CONNECTING);
         ret = SAKURA_MQTT_STAT_OK;
     } while (SAKURA_FALSE);
 
@@ -953,7 +953,7 @@ static sakura_int32_t mqtt_update_message_state(mqtt_client_t *client, mqtt_msg_
         /* assembly send package header */
         assembly_send_packet_header(sendbuf_head, index, msg.message_type, len);
         if (MQTT_BACKUP_ENABLE(client) && msg.message_id > 0) {
-            // WORK_LOGD("client[%d] append message[%s:%d] to backup buffer\n", client->index, GET_MQTT_MSG_NAME(msg.message_type), msg.message_id);
+            // WORK_LOGD("client[%d] append message[%s:%d] to backup buffer\n", client->index, mqtt_get_message_name(msg.message_type), msg.message_id);
             /* append message to backup buffer */
             backup = mqtt_append_backup_message(client, sendbuf_head, len + MQTT_SEND_PKT_HEADER_LEN);
             if(backup < 0){
@@ -1274,7 +1274,7 @@ static sakura_int32_t mqtt_loop_once(mqtt_client_t *client)
                         client->net.sock = -1;
                     }
 
-                    MQTT_NEXT_STATE(client, MQTT_CLIENT_NOT_CONNECTED);
+                    mqtt_next_state(client, MQTT_CLIENT_NOT_CONNECTED);
                 }
                 continue;
             }
@@ -1356,7 +1356,7 @@ static sakura_int32_t mqtt_append_backup_message(mqtt_client_t *client, sakura_u
             break;
         }
 
-        // WORK_LOGD("append [%s:%d] to backup buffer\n", GET_MQTT_MSG_NAME(msg[1]), msgid);
+        // WORK_LOGD("append [%s:%d] to backup buffer\n", mqtt_get_message_name(msg[1]), msgid);
         /* copy message to backup buffer */
         memcpy(MQTT_BACKUP_BUF_HEAD(client), msg, msglen);
 
@@ -1457,9 +1457,9 @@ static sakura_int32_t mqtt_message_dispatch(mqtt_client_t *client, mqtt_header_t
         || msg_type == PUBREC
         || msg_type == PUBCOMP
         || msg_type == PUBREL){
-            WORK_LOGD("[%02d|%s] <=== [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, GET_MQTT_MSG_NAME(msg_type), message_len);
+            WORK_LOGD("[%02d|%s] <=== [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, mqtt_get_message_name(msg_type), message_len);
         } else {
-            WORK_LOGI("[%02d|%s] <=== [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, GET_MQTT_MSG_NAME(msg_type), message_len);
+            WORK_LOGI("[%02d|%s] <=== [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, mqtt_get_message_name(msg_type), message_len);
         }
         
         switch (msg_type) {
@@ -1470,7 +1470,7 @@ static sakura_int32_t mqtt_message_dispatch(mqtt_client_t *client, mqtt_header_t
             case DISCONNECT:
                 /* invalid message type */
                 ret = SAKURA_MQTT_ERROR;
-                WORK_LOGE("Not support message type: %s\n", GET_MQTT_MSG_NAME(msg_type));
+                WORK_LOGE("Not support message type: %s\n", mqtt_get_message_name(msg_type));
                 break;
 
             case CONNACK:
@@ -1622,7 +1622,7 @@ static sakura_int32_t mqtt_handle_timeout(mqtt_client_t *client, sakura_int32_t 
             if(client->msg_tracker_array[idx].expect_type == CONNACK){
                 /* change client state */
                 WORK_LOGE("client[%02d|%s] connect timeout!\n", client->index, client->client_id);
-                MQTT_NEXT_STATE(client, MQTT_CLIENT_CONNECT_ERROR);
+                mqtt_next_state(client, MQTT_CLIENT_CONNECT_ERROR);
             }
 
             /* release it message tracker */
@@ -1660,7 +1660,7 @@ static sakura_int32_t mqtt_do_redeliver(mqtt_client_t *client, sakura_int32_t id
                 break;
             default:
                 /* invalid type */
-                WORK_LOGE("client[%d:%s]  redelivery was not supported when expect %s\n", client->index, client->client_id, GET_MQTT_MSG_NAME((sakura_uint8_t)(client->msg_tracker_array[idx].expect_type)));
+                WORK_LOGE("client[%d:%s]  redelivery was not supported when expect %s\n", client->index, client->client_id, mqtt_get_message_name((sakura_uint8_t)(client->msg_tracker_array[idx].expect_type)));
                 break;
         }
     } while (SAKURA_FALSE);
@@ -1781,7 +1781,7 @@ static sakura_int32_t mqtt_handle_connack(mqtt_client_t *client, mqtt_header_t *
 
         if (retcode == 0U) {
             /* set client state */
-            MQTT_NEXT_STATE(client, MQTT_CLIENT_CONNECTED);
+            mqtt_next_state(client, MQTT_CLIENT_CONNECTED);
             WORK_LOGI("[%02d|%s] becomes connected\n", client->index, client->client_id);
         }
 
@@ -1992,7 +1992,7 @@ static sakura_void_t mqtt_remove_send_message(mqtt_client_t *client, sakura_int3
                     /* if waiting for the send buffer is messy, just return, do not handle the problem here */
                     if (msg_state == (sakura_uint8_t)MSG_STATE_WAITING) {
                         WORK_LOGD("remove send message, [%s:%d] from send buffer\n",
-                            GET_MQTT_MSG_NAME(msg_type), client->msg_tracker_array[idx].message_id);
+                            mqtt_get_message_name(msg_type), client->msg_tracker_array[idx].message_id);
                         /* check data length */
                         if (msg_size - msg_len > 0) {
                             /* remove send data from send buffer */
@@ -2031,7 +2031,7 @@ static sakura_void_t mqtt_remove_backup_message(mqtt_client_t *client, sakura_in
         msg = mqtt_get_backup_message(client, idx, &msglen, &msg_offset);
         if (msg != NULL) {
             /* message is valid */
-            // WORK_LOGD("client[%d] remove message[%s:%d] from backup buffer\n", client->index, GET_MQTT_MSG_NAME(msg[1]), client->msg_tracker_array[idx].message_id);
+            // WORK_LOGD("client[%d] remove message[%s:%d] from backup buffer\n", client->index, mqtt_get_message_name(msg[1]), client->msg_tracker_array[idx].message_id);
             len = client->net.backup.len - msg_offset - msglen;
             if (len > 0) {
                 /* remove message from backup buffer */
@@ -2099,7 +2099,7 @@ static sakura_int32_t mqtt_send_backup_message(mqtt_client_t *client, sakura_int
         client->net.send.len += msglen;
         /* set message state */
         client->msg_tracker_array[idx].state = MSG_STATE_WAITING;
-        // WORK_LOGD("client[%d:%s] redeliver [%s:%d]\n", client->index, client->client_id, GET_MQTT_MSG_NAME(msgtype), client->msg_tracker_array[idx].message_id);
+        // WORK_LOGD("client[%d:%s] redeliver [%s:%d]\n", client->index, client->client_id, mqtt_get_message_name(msgtype), client->msg_tracker_array[idx].message_id);
         ret = mqtt_try_send(client);
     } while (SAKURA_FALSE);
 
@@ -2127,7 +2127,7 @@ static sakura_int32_t  mqtt_send_common_ack(mqtt_client_t *client, sakura_uint8_
         msg_ident.message_id = message_id;
         len = mqtt_encode_ack(MQTT_SEND_PKT_HEAD(client), MQTT_SEND_PKT_REST(client), msg_type, msg_ident);
         if (len <= 0) {
-            WORK_LOGW("no enough send buffer to reply %s for message id [%d]\n", GET_MQTT_MSG_NAME(msg_type), message_id);
+            WORK_LOGW("no enough send buffer to reply %s for message id [%d]\n", mqtt_get_message_name(msg_type), message_id);
             /*
             * Here, we do not return error if no enough send buffer available.
             * It is too busy now, we would handle the re-delivery message later if possible.
@@ -2872,5 +2872,69 @@ static sakura_void_t write_mqtt_remain_len(sakura_uint8_t **pptr, sakura_int32_t
             ++(*pptr);
             bytes++;
         }
+    } while (SAKURA_FALSE);
+}
+
+/**
+ * @brief get message type string
+ * 
+ * @param type type num
+ * @return const sakura_char_t* 
+ */
+const sakura_char_t* mqtt_get_message_name(sakura_uint8_t type)
+{
+    static const sakura_char_t* null = "NULL";
+    const sakura_char_t* msg_name = null;
+    do
+    {
+        if(type > 0x0f){
+            break;
+        }
+
+        msg_name = mqtt_message_name[type];
+    } while (SAKURA_FALSE);
+    
+    return msg_name;
+}
+
+/**
+ * @brief get client state name string
+ * 
+ * @param state state num
+ * @return const sakura_char_t* 
+ */
+const sakura_char_t* mqtt_get_client_state_name(MQTT_CLIENT_STATE state)
+{
+    static const sakura_char_t* null = "NULL";
+    const sakura_char_t* msg_name = null;
+    do
+    {
+        if(state > 0x07){
+            break;
+        }
+
+        msg_name = mqtt_client_state[(sakura_uint8_t)state];
+    } while (SAKURA_FALSE);
+    
+    return msg_name;
+}
+
+/**
+ * @brief get next state
+ * 
+ * @param client client handle
+ * @param state state num
+ * @return sakura_void_t 
+ */
+sakura_void_t mqtt_next_state(mqtt_client_t *client, MQTT_CLIENT_STATE state)
+{
+    do
+    {
+        if(client == NULL){
+            WORK_LOGE("mqtt_next_state failed! client is NULL!\n");
+            break;
+        }
+        WORK_LOGD("[%s] transfer from [%s] to [%s]\n", client->client_id, mqtt_get_client_state_name(client->state), mqtt_get_client_state_name(state));
+        client->state = state;
     } while (SAKURA_FALSE);
 }

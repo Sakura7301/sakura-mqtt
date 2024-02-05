@@ -55,15 +55,7 @@ extern sakura_char_t *mqtt_client_state[8];
 #define MQTT_RECV_BUF_REST(client)                  ((client)->net.recv.size - (client)->net.recv.len)
 #define MQTT_BACKUP_BUF_HEAD(client)                ((client)->net.backup.buf + (client)->net.backup.len)
 #define MQTT_BACKUP_BUF_REST(client)                ((client)->net.backup.size - (client)->net.backup.len)
-
-#define GET_MQTT_MSG_NAME(type)                     mqtt_message_name[(type) & 0x0FU]
-#define MQTT_RECORD_STATE(client, next)             SAKURA_LOGD("[%s] transfer from [%s] to [%s]\n", (client)->client_id,\
-                                                        mqtt_client_state[(sakura_uint8_t)((client)->state) & 0x0FU], mqtt_client_state[(sakura_uint8_t)(next) & 0x0FU])
-#define MQTT_NEXT_STATE(client, next)               do {\
-                                                        MQTT_RECORD_STATE((client), (next));\
-                                                        (client)->state = (next);\
-                                                    } while (SAKURA_FALSE)
-#define MQTT_BACKUP_ENABLE(client)                   ((client)->net.backup.buf != NULL && (client)->net.backup.size != 0U)
+#define MQTT_BACKUP_ENABLE(client)                  ((client)->net.backup.buf != NULL && (client)->net.backup.size != 0U)
 #define MQTT_WILL_DATA_INITIALIZER                  { QOS0, 0, NULL, NULL, 0 }
 #define MQTT_CONNECT_OPTION_INITIALIZER             { 4, NULL, DEFAULT_MQTT_KEEPALIVE_INTERVAL, 1, 0, MQTT_WILL_DATA_INITIALIZER, NULL, NULL }
 
@@ -658,6 +650,30 @@ sakura_int32_t mqtt_check_tracker_index(sakura_int32_t index);
  */
 sakura_uint32_t sakura_mqtt_get_net_buf_size(sakura_void_t);
 
+/**
+ * @brief get message type string
+ * 
+ * @param type type num
+ * @return const sakura_char_t* 
+ */
+const sakura_char_t* mqtt_get_message_name(sakura_uint8_t type);
+
+/**
+ * @brief get client state name string
+ * 
+ * @param state state num
+ * @return const sakura_char_t* 
+ */
+const sakura_char_t* mqtt_get_client_state_name(MQTT_CLIENT_STATE state);
+
+/**
+ * @brief get next state
+ * 
+ * @param client client handle
+ * @param state state num
+ * @return sakura_void_t 
+ */
+sakura_void_t mqtt_next_state(mqtt_client_t *client, MQTT_CLIENT_STATE state);
 #ifdef __cplusplus
 }
 #endif

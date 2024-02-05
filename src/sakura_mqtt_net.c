@@ -103,7 +103,7 @@ sakura_int32_t mqtt_net_on_connect(sakura_int32_t sock)
         }
 
         /* the context is socket thread, just change the flag */
-        MQTT_NEXT_STATE(client, MQTT_CLIENT_TCP_CONNECTED);
+        mqtt_next_state(client, MQTT_CLIENT_TCP_CONNECTED);
         ret = SAKURA_MQTT_STAT_OK;
 
         
@@ -220,7 +220,7 @@ sakura_int32_t mqtt_net_on_status(sakura_int32_t sock, sakura_int32_t status)
             case SAKURA_SOCK_ERR_RECV:
             case SAKURA_SOCK_ERR_UNKNOWN:
                 NET_LOGE("net on status: %d\n", status);
-                MQTT_NEXT_STATE(client, MQTT_CLIENT_CONNECT_ERROR);
+                mqtt_next_state(client, MQTT_CLIENT_CONNECT_ERROR);
                 
                 break;
             default:
@@ -269,9 +269,9 @@ static sakura_int32_t mqtt_try_send_wrapper(mqtt_client_t *client, sakura_uint8_
         || msg_type == PUBREC
         || msg_type == PUBCOMP
         || msg_type == PUBREL){
-            NET_LOGD("[%02d|%s] ===> [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, GET_MQTT_MSG_NAME(msg_type), len);
+            NET_LOGD("[%02d|%s] ===> [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, mqtt_get_message_name(msg_type), len);
         } else {
-            NET_LOGI("[%02d|%s] ===> [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, GET_MQTT_MSG_NAME(msg_type), len);
+            NET_LOGI("[%02d|%s] ===> [%s]: %s[%d]\n", client->index, client->client_id, client->broker_id, mqtt_get_message_name(msg_type), len);
         }
 
         /* update mqtt message state */
@@ -318,7 +318,7 @@ static sakura_void_t mqtt_update_msg_state(mqtt_client_t *client, sakura_int32_t
                         client->msg_tracker_array[idx].state = (sakura_uint8_t)MSG_STATE_FREE;
                     }
                     /* client state next */
-                    MQTT_NEXT_STATE(client, MQTT_CLIENT_NOT_CONNECTED);
+                    mqtt_next_state(client, MQTT_CLIENT_NOT_CONNECTED);
                 } else {
                     /* PUBLISH */
                     if (client->msg_tracker_array[idx].callback != NULL) {

@@ -1,0 +1,73 @@
+{
+    "tasks": [
+        /* make demo */
+        {
+            "type": "cppbuild",
+            "label": "sakura-mqtt Build",
+            "command": "make",
+            "args": [
+                "demo"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务。",
+            "dependsOn": [
+                /* try call make */
+                "make source"
+            ]
+        },
+        /* make source */
+        {
+            "type": "shell",
+            "label": "make source",
+            "command": "make",
+            "args": [
+                // "RELEASE=RELEASE"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务。",
+            "dependsOn": [
+                /* try called make clean */
+                "make clean"
+            ]
+        },
+        /* clean */
+        {
+            "type": "shell",
+            "label": "make clean",
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "none",
+                "isDefault": false
+            },
+        }
+    ],
+    
+    "version": "2.0.0"
+}

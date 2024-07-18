@@ -4,6 +4,7 @@ DIST_PATH 		= $(ROOT_PATH)/dist
 DOT_CONFIG_FILE = $(ROOT_PATH)/../../.config
 LIBS_PATH 		= $(ROOT_PATH)/../../dist
 RPATH    		= -Wl,-rpath=$(LIBS_PATH)
+IT_PATH			= $(ROOT_PATH)/it
 
 ######################################
 # source files
@@ -50,16 +51,18 @@ CXXFLAGS := $(filter-out $(FILTER_FLAGS),$(CXXFLAGS))
 all: it
 
 check_path:
-	-mkdir $(DIST_PATH)
+	@mkdir -p $(DIST_PATH)
 
 %.o: %.c
-	$(CXX) -c $(CXXFLAGS) $< -o $(DIST_PATH)/$(notdir $@)
+	@echo "Compiling $<"
+	@$(CXX) -c $(CXXFLAGS) $< -o $(DIST_PATH)/$(notdir $@)
 
 objs: $(OBJS)
 
 clean:
 	-rm -rf $(DIST_PATH)
-	-rm -rf $(ROOT_PATH)/it
+	-rm -rf $(IT_PATH)
 
 it: check_path $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(ROOT_PATH)/it $(TARGET_OBJS) -L $(LIBS_PATH) $(LDFLAGS) $(TEST_LDFLAGS)
+	@echo "Creating it: $@"
+	@$(CXX) $(CXXFLAGS) -o $(IT_PATH) $(TARGET_OBJS) -L $(LIBS_PATH) $(LDFLAGS) $(TEST_LDFLAGS)

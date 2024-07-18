@@ -1,4 +1,3 @@
-
 ## PATH
 ROOT_PATH = $(shell pwd)
 SYS = $(shell uname -s)
@@ -8,9 +7,9 @@ MKCONFIG = $(ROOT_PATH)/tools/mock_config
 COMPILER_MKS_PATH = $(ROOT_PATH)/compiler_mks
 AUTOCONFIG_H = $(ROOT_PATH)/inc/sakura_autoconfig.h
 DOT_CONFIG_FILE = $(ROOT_PATH)/.config
+DEMO_PATH = $(ROOT_PATH)/demo
 PACKET_NAME="sakura-mqtt-sdk"
 COMMIT_ID := $(shell git rev-parse HEAD)
-
 
 ifeq ($(INCLUDE_CMD), )
 INCLUDE_CMD=-I
@@ -40,7 +39,6 @@ ifeq ($(CONFIG_SYS_UNIX), y)
 INCLUDE_PATH-y += -I $(ROOT_PATH)/src/protocol/dns
 endif
 
-
 ######################################
 # source files
 ######################################
@@ -50,7 +48,6 @@ SOURCE_FILES-y  = $(ROOT_PATH)/src/sakura_mqtt_net.c \
                 $(ROOT_PATH)/src/sakura_mqtt_pack.c \
 				$(ROOT_PATH)/src/utils/cjson/cJSON.c \
 				$(ROOT_PATH)/src/utils/sakura_utils.c
-
 
 # unix platform
 ifeq ($(CONFIG_SYS_UNIX), y)
@@ -78,15 +75,15 @@ ifeq ($(CONFIG_LOG), y)
 SOURCE_FILES-y += $(ROOT_PATH)/src/log/sakura_log.c
 endif # CONFIG_LOG
 
-
-
 EXTRA_CFLAGS = $(INCLUDE_PATH-y)
+
 ######################################
 # objects
 ######################################
-OBJS  := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES-y)))
-TARGET_OBJS := $(foreach x,$(OBJS),$(addprefix $(DIST_PATH)/,$(notdir $(x))))
+OBJS := $(patsubst $(ROOT_PATH)/%.c,$(DIST_PATH)/%.o,$(SOURCE_FILES-y))
 
+# Generate dependency files
+DEPS := $(OBJS:.o=.d)
 
 ######################################
 # compilers
@@ -121,7 +118,6 @@ ifeq ($(SYS), Linux)
 LDFLAGS += -pthread
 endif
 
-
 # support gcovr or notdir
 ifneq ($(GCOVR), )
 ifeq ($(SYS), Linux)
@@ -153,13 +149,12 @@ CFLAGS += -D'MQTT_SDK_COMMIT_ID="$(COMMIT_ID)"'
 export CC AR CFLAGS LDFLAGS ARFLAGS
 ########################################
 
-#i think you should do anything here
-.PHONY: objs clean check_path $(TARGET_SHARED_LIB) lib
+.PHONY: all objs clean check_path lib mock_config gen_autoconfig_header_file ut it
 
 all: gen_autoconfig_header_file lib
 
 mock_config:
-	make -C $(ROOT_PATH)/tools
+	@make -s -C $(ROOT_PATH)/tools
 
 gen_autoconfig_header_file: mock_config
 	$(MKCONFIG) $(ROOT_PATH) > $(AUTOCONFIG_H)
@@ -167,10 +162,16 @@ gen_autoconfig_header_file: mock_config
 lib: check_path $(TARGET)
 
 check_path:
-	-mkdir $(DIST_PATH)
+	@mkdir -p $(DIST_PATH)
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $(DIST_PATH)/$(notdir $@)
+# Rule for incremental compilation
+$(DIST_PATH)/%.o: $(ROOT_PATH)/%.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<"
+	@$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+
+# Include generated dependency files
+-include $(DEPS)
 
 objs: $(OBJS)
 
@@ -184,18 +185,19 @@ clean:
 	make -C $(ROOT_PATH)/test/it clean
 
 $(TARGET_SHARED_LIB): $(OBJS)
-	$(CC) $(CFLAGS) -shared -o $@ $(TARGET_OBJS) $(LDFLAGS)
+	@echo "Creating shared library: $@"
+	@$(CC) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS)
 
 $(TARGET_STATIC_LIB): $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(TARGET_OBJS)
-
-
+	@echo "Creating static library: $@"
+	@$(AR) $(ARFLAGS) $@ $^
 
 demo: demo.c
-	$(CC) $< -o $@ $(CFLAGS) -L $(DIST_PATH) $(LDFLAGS) -lsakura_mqtt $(RPATH) $(LDFLAGS)
+	@echo "Creating demo: $(DEMO_PATH)"
+	@$(CC) $< -o $@ $(CFLAGS) -L $(DIST_PATH) $(LDFLAGS) -lsakura_mqtt $(RPATH) $(LDFLAGS)
 
 ut:
-	make -C $(ROOT_PATH)/test/ut
+	@make -s -C $(ROOT_PATH)/test/ut
 
 it:
-	make -C $(ROOT_PATH)/test/it
+	@make -s -C $(ROOT_PATH)/test/it

@@ -180,9 +180,12 @@ clean:
 	rm -rf demo
 	rm -rf release
 	rm -rf archive/include/*
-	make -C $(ROOT_PATH)/tools clean
-	make -C $(ROOT_PATH)/test/ut clean
-	make -C $(ROOT_PATH)/test/it clean
+	@echo "rm -rf tools"
+	@make -s -C $(ROOT_PATH)/tools clean
+	@echo "rm -rf ut"
+	@make -s -C $(ROOT_PATH)/test/ut clean
+	@echo "rm -rf it"
+	@make -s -C $(ROOT_PATH)/test/it clean
 
 $(TARGET_SHARED_LIB): $(OBJS)
 	@echo "Creating shared library: $@"
